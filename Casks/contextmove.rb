@@ -20,16 +20,16 @@
 # like a corrupted download rather than a packaging mistake.
 
 cask "contextmove" do
-  version "4.1.1"
-  sha256 "f934496dbfedca3bc2b2ce4f6393d14ce60efa610ba4dd17eb70a919fb5112df"
+  version "4.2.0"
+  sha256 "bf4b0b0c93b32180c9db289e906362c73149b6fc5fb06c891e32d837b1a83bb2"
 
   # Points at the public distribution repo, not the private source repo — a
   # cask URL has to be fetchable anonymously by every `brew install`.
-  url "https://github.com/Rithvickkr/contextmove/releases/download/v#{version}/ContextMove-#{version}-macOS.dmg",
-      verified: "github.com/Rithvickkr/contextmove/"
+  url "https://github.com/Rithvickkr/ContextMove/releases/download/v#{version}/ContextMove-#{version}-macOS.dmg",
+      verified: "github.com/Rithvickkr/ContextMove/"
   name "ContextMove"
   desc "Local-first conversation context manager with MCP support"
-  homepage "https://github.com/Rithvickkr/contextmove"
+  homepage "https://github.com/Rithvickkr/ContextMove"
 
   livecheck do
     url :url
@@ -54,14 +54,19 @@ cask "contextmove" do
   end
 
   # `brew uninstall --zap contextmove` removes user data too.
+  # Both names are listed: installs from before the ContextVolt -> ContextMove
+  # rename may still hold either, and a zap that misses one leaves the vault
+  # behind on an uninstall the user asked to be complete.
   zap trash: [
+    "~/Library/Application Support/ContextMove",
     "~/Library/Application Support/ContextVolt",
+    "~/Library/Saved Application State/com.contextmove.app.savedState",
     "~/Library/Saved Application State/com.contextvolt.app.savedState",
   ]
 
   caveats <<~EOS
     ContextMove stores its database, config, and logs in:
-      ~/Library/Application Support/ContextVolt
+      ~/Library/Application Support/ContextMove
 
     No AI models are downloaded — capture, summarization, and search all run
     without one, so the app opens straight into your workspace on first launch.
