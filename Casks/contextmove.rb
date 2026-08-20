@@ -1,12 +1,12 @@
 # ContextMove — Homebrew Cask
 #
 # This file belongs in a SEPARATE GitHub repo named `homebrew-tap`, under a
-# top-level `Casks/` directory:  Rithvickkr/homebrew-tap/Casks/contextmove.rb
+# top-level `Casks/` directory:  Context-Move/homebrew-tap/Casks/contextmove.rb
 # It is kept here in the main repo as the source of truth — see README.md in
 # this folder for the one-time tap setup and the release update workflow.
 #
 # Users install with:
-#     brew install --cask rithvickkr/tap/contextmove
+#     brew install --cask context-move/tap/contextmove
 #
 # This is the RECOMMENDED macOS install path, not an alternative to the .dmg.
 # The app is ad-hoc signed rather than notarized (no paid Apple Developer ID),
@@ -25,11 +25,11 @@ cask "contextmove" do
 
   # Points at the public distribution repo, not the private source repo — a
   # cask URL has to be fetchable anonymously by every `brew install`.
-  url "https://github.com/Rithvickkr/ContextMove/releases/download/v#{version}/ContextMove-#{version}-macOS.dmg",
-      verified: "github.com/Rithvickkr/ContextMove/"
+  url "https://github.com/Context-Move/ContextMove/releases/download/v#{version}/ContextMove-#{version}-macOS.dmg",
+      verified: "github.com/Context-Move/ContextMove/"
   name "ContextMove"
   desc "Local-first conversation context manager with MCP support"
-  homepage "https://github.com/Rithvickkr/ContextMove"
+  homepage "https://github.com/Context-Move/ContextMove"
 
   livecheck do
     url :url
