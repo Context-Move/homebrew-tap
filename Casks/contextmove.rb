@@ -40,6 +40,20 @@ cask "contextmove" do
   # summaries and titles; 3.x builds them deterministically instead, so the app
   # downloads and runs no models at all. Keeping the dependency would have
   # forced a multi-hundred-MB install of a runtime nothing calls.
+
+  # The .dmg is Apple Silicon only: build-mac.yml runs on the macos-14 runner,
+  # and py2app freezes whatever arch that interpreter is, so the bundle carries
+  # arm64 slices and nothing else. Without this guard `brew install` on an Intel
+  # Mac SUCCEEDS and then the app refuses to launch — the user is told the
+  # install worked and left with a dead icon and no reason for it. Rosetta does
+  # not help; it translates x86_64 for Apple Silicon, not the other way around.
+  #
+  # Safe for Apple Silicon users running an Intel Homebrew under /usr/local:
+  # Homebrew checks Hardware::CPU.type, which reads `sysctl hw.cputype`, and
+  # that reports the PHYSICAL cpu — sysctl does not lie under Rosetta 2 (it is
+  # how Homebrew detects Rosetta in the first place, by diffing sysctl against
+  # uname). So those installs still see :arm and still pass.
+  depends_on arch: :arm64
   depends_on macos: ">= :big_sur" # matches LSMinimumSystemVersion 11.0
 
   app "ContextMove.app"
