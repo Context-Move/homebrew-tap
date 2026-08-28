@@ -20,15 +20,15 @@
 # like a corrupted download rather than a packaging mistake.
 
 cask "contextmove" do
-  version "4.5.1"
-  sha256 "9472d224f2ca6d4c3269c70f3689b97359029c6a5249f726c00c1110bbed6caa"
+  version "4.6.0"
+  sha256 "483694bb755a54fc5af51dcbcfc24f7cf03721e2138c42bac4a712bf84ad7777"
 
   # Points at the public distribution repo, not the private source repo — a
   # cask URL has to be fetchable anonymously by every `brew install`.
   url "https://github.com/Context-Move/ContextMove/releases/download/v#{version}/ContextMove-#{version}-macOS.dmg",
       verified: "github.com/Context-Move/ContextMove/"
-  name "ContextMove"
-  desc "Local-first conversation context manager with MCP support"
+  name "Context Move"
+  desc "Local-first conversation context manager"
   homepage "https://github.com/Context-Move/ContextMove"
 
   livecheck do
@@ -85,8 +85,9 @@ cask "contextmove" do
     No AI models are downloaded — capture, summarization, and search all run
     without one, so the app opens straight into your workspace on first launch.
 
-    To capture conversations, install the browser extension: open ContextMove
-    and follow the first-run tour, or load the bundled extension/ folder as an
-    unpacked extension in any Chromium browser.
+    To capture conversations, install the browser extension from the Chrome
+    Web Store — ContextMove opens the listing for you at the end of the
+    first-run tour:
+      https://chromewebstore.google.com/detail/goenplhbbljlodllpclonganogjajppe
   EOS
 end
