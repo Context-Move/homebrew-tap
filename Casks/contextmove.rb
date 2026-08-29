@@ -20,8 +20,8 @@
 # like a corrupted download rather than a packaging mistake.
 
 cask "contextmove" do
-  version "4.6.0"
-  sha256 "483694bb755a54fc5af51dcbcfc24f7cf03721e2138c42bac4a712bf84ad7777"
+  version "4.6.1"
+  sha256 "bc96211feec8cecb81bdb11a4d4de495de7087f7f784a14fc4c0ebeb85677edb"
 
   # Points at the public distribution repo, not the private source repo — a
   # cask URL has to be fetchable anonymously by every `brew install`.
