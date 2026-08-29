@@ -89,5 +89,11 @@ cask "contextmove" do
     Web Store — ContextMove opens the listing for you at the end of the
     first-run tour:
       https://chromewebstore.google.com/detail/goenplhbbljlodllpclonganogjajppe
+
+    A copy also ships inside the app, for a browser without the store or to
+    run a build newer than the published one:
+      ContextMove.app/Contents/Resources/extension
+    Load it with Developer mode > Load unpacked. Use one or the other — with
+    both installed every chat page gets two panels.
   EOS
 end
