@@ -20,8 +20,8 @@
 # like a corrupted download rather than a packaging mistake.
 
 cask "contextmove" do
-  version "4.6.1"
-  sha256 "bc96211feec8cecb81bdb11a4d4de495de7087f7f784a14fc4c0ebeb85677edb"
+  version "4.6.2"
+  sha256 "1b87175eb1d370ecf6ec91aa331d77b64bc3ce0cd6d4cbf5d769f5e52a9251dd"
 
   # Points at the public distribution repo, not the private source repo — a
   # cask URL has to be fetchable anonymously by every `brew install`.
@@ -67,20 +67,65 @@ cask "contextmove" do
                    args: ["-dr", "com.apple.quarantine", "#{appdir}/ContextMove.app"]
   end
 
-  # `brew uninstall --zap contextmove` removes user data too.
-  # Both names are listed: installs from before the ContextVolt -> ContextMove
-  # rename may still hold either, and a zap that misses one leaves the vault
-  # behind on an uninstall the user asked to be complete.
-  zap trash: [
-    "~/Library/Application Support/ContextMove",
-    "~/Library/Application Support/ContextVolt",
-    "~/Library/Saved Application State/com.contextmove.app.savedState",
-    "~/Library/Saved Application State/com.contextvolt.app.savedState",
-  ]
+  # Quit before the .app is deleted. Safe to run on upgrade — which is exactly
+  # when it matters, since `brew upgrade --cask` replaces the bundle underneath
+  # whatever is running.
+  #
+  # Nothing else belongs in this stanza. `brew upgrade` and `brew reinstall`
+  # both run `uninstall` before installing the new version, so anything that
+  # cleared credentials or autostart here would sign the user out and turn
+  # their launch-at-login off on every routine upgrade. That is the one place
+  # macOS genuinely differs from Windows, where the updater installs over the
+  # top and never invokes the uninstaller at all.
+  uninstall quit: "com.contextmove.app"
+
+  # `brew uninstall --zap contextmove` removes user data too. This is the
+  # counterpart of answering Yes to the Windows uninstaller's "also delete your
+  # conversations?" prompt: opt-in, and complete when opted into.
+  #
+  # Both names are listed throughout: installs from before the ContextVolt ->
+  # ContextMove rename may still hold either, and a zap that misses one leaves
+  # the vault behind on an uninstall the user asked to be complete.
+  zap launchctl: "com.contextmove.autostart",
+      trash:     [
+        "~/Library/Application Support/ContextMove",
+        "~/Library/Application Support/ContextVolt",
+        "~/Library/Saved Application State/com.contextmove.app.savedState",
+        "~/Library/Saved Application State/com.contextvolt.app.savedState",
+        # Written at runtime by backend/autostart.py, not by the installer, so
+        # nothing else would ever remove it. Left behind it points launchd at
+        # an app that no longer exists.
+        "~/Library/LaunchAgents/com.contextmove.autostart.plist",
+      ],
+      # Keychain items are not files, so `trash:` cannot reach them. Left in
+      # place they are why a macOS reinstall comes back already signed in and
+      # already connected to Drive — the same gap uninstall_cleanup.py closes
+      # on Windows. Done here in plain shell rather than by calling that script
+      # so it still works when the .app is broken, already gone, or was never
+      # launched.
+      #
+      # machine_id is deliberately absent: entitlements.py binds a paid licence
+      # to it, so clearing it would silently invalidate the entitlement of
+      # anyone who reinstalls. It is a fingerprint, not a session.
+      script:    {
+        executable: "/bin/sh",
+        args:       [
+          "-c",
+          "for s in ContextMove ContextVolt; do " \
+          "for a in google_drive_refresh_token supabase_refresh_token supabase_profile; do " \
+          "/usr/bin/security delete-generic-password -s \"$s\" -a \"$a\" >/dev/null 2>&1; " \
+          "done; done; exit 0",
+        ],
+      }
 
   caveats <<~EOS
     ContextMove stores its database, config, and logs in:
       ~/Library/Application Support/ContextMove
+
+    `brew uninstall` leaves all of that in place, along with your sign-in, so
+    reinstalling picks up where you left off. To remove everything — vault,
+    sign-in, and the Google Drive connection:
+      brew uninstall --zap contextmove
 
     No AI models are downloaded — capture, summarization, and search all run
     without one, so the app opens straight into your workspace on first launch.
