@@ -1,0 +1,61 @@
+name: Cask
+
+# Why this exists.
+#
+# A syntax error in Casks/contextmove.rb does not fail quietly — it breaks
+# `brew install` for every macOS user of this tap.
+#
+# The source repo does lint its own copy, in the cask-lint job of
+# macos-smoke.yml. That job is workflow_dispatch-only, because the source repo
+# is private and macOS runners bill there at 10x — so it catches a broken cask
+# only when someone remembers to run it. This one is automatic, because this
+# repo is public and macOS minutes here are free.
+#
+# It also checks the two things that job cannot: the file as it actually ships,
+# after the version and sha256 have been edited in, and whether that sha256
+# still matches the .dmg it names.
+
+on:
+  push:
+    paths:
+      - "Casks/**"
+      - ".github/workflows/cask.yml"
+  pull_request:
+    paths:
+      - "Casks/**"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The hard gate. `brew style` runs RuboCop over the cask, so a malformed
+      # stanza, an unbalanced hash or a broken string continuation fails here
+      # rather than on someone's laptop. Homebrew ships preinstalled on the
+      # macOS runners, so there is nothing to set up.
+      - name: brew style
+        run: brew style Casks/contextmove.rb
+
+      # `audit` has to resolve the cask by the name users install with, so the
+      # checkout is linked in as a real tap rather than audited as a loose file.
+      - name: Register the checkout as context-move/tap
+        run: |
+          dest="$(brew --repository)/Library/Taps/context-move/homebrew-tap"
+          mkdir -p "$(dirname "$dest")"
+          ln -sfn "$GITHUB_WORKSPACE" "$dest"
+
+      # --online fetches the .dmg and verifies the sha256, which is the one
+      # check that catches a digest left over from the previous version — the
+      # mistake that makes `brew install` fail with a checksum mismatch and
+      # reads to users like a corrupted download.
+      #
+      # Non-blocking on purpose, for now: `brew audit` also reports style
+      # opinions that are advisory for a personal tap, and a release should not
+      # be held up by one. Read the log. Once you have seen it pass cleanly,
+      # delete this line and let it gate like the step above.
+      - name: brew audit
+        continue-on-error: true
+        run: brew audit --cask --online context-move/tap/contextmove
