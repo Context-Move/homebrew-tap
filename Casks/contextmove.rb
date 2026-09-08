@@ -20,8 +20,8 @@
 # like a corrupted download rather than a packaging mistake.
 
 cask "contextmove" do
-  version "4.6.2"
-  sha256 "1b87175eb1d370ecf6ec91aa331d77b64bc3ce0cd6d4cbf5d769f5e52a9251dd"
+  version "4.7.0"
+  sha256 "7990395b133de11e83af703df27058a8585c45d2c4ac3c31665c45d84a8035bf"
 
   # Points at the public distribution repo, not the private source repo — a
   # cask URL has to be fetchable anonymously by every `brew install`.
@@ -54,7 +54,7 @@ cask "contextmove" do
   # how Homebrew detects Rosetta in the first place, by diffing sysctl against
   # uname). So those installs still see :arm and still pass.
   depends_on arch: :arm64
-  depends_on macos: ">= :big_sur" # matches LSMinimumSystemVersion 11.0
+  depends_on macos: :big_sur # matches LSMinimumSystemVersion 11.0
 
   app "ContextMove.app"
 
@@ -126,6 +126,12 @@ cask "contextmove" do
     reinstalling picks up where you left off. To remove everything — vault,
     sign-in, and the Google Drive connection:
       brew uninstall --zap contextmove
+
+    Homebrew owns this install, so updates come from here, not from inside the
+    app — it detects the cask and points you back at:
+      brew upgrade --cask context-move/tap/contextmove
+    Installing over the top from a downloaded .dmg desynchronises the Caskroom
+    receipt and makes the next upgrade fail on a bundle brew can no longer find.
 
     No AI models are downloaded — capture, summarization, and search all run
     without one, so the app opens straight into your workspace on first launch.
